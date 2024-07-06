@@ -6,6 +6,7 @@
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
 
+# Creates categories map, to map from PRODUCTS constants to enums
 categories_map = {
   'Birth Control': 0,
   'Emergency Contraception': 1,
@@ -13,6 +14,8 @@ categories_map = {
   'OTC Products': 3
 }.with_indifferent_access
 
+
+# Seeds all STATES from constants
 STATES.each do |state| 
   if State.find_by(abbreviation: state[1]).blank?
     State.create(
@@ -24,6 +27,7 @@ STATES.each do |state|
   end
 end
 
+# Seeds all PRODUCTS from constants
 PRODUCTS.each do |product|
   if Product.find_by(ndc: product[:ndc]).blank?
     Product.create(
@@ -37,6 +41,7 @@ PRODUCTS.each do |product|
   end
 end
 
+# Create an example Patient from Texas
 if Patient.find_by(email: 'led479@gmail.com').blank?
   Patient.create(name: 'Rolf Zambon', email: 'led479@gmail.com', dob: DateTime.parse('1998-11-21'), state: State.find_by(abbreviation: 'TX'))
 end
@@ -44,4 +49,8 @@ end
 product = Product.first
 state = State.first
 
+# Bans the first product on the first state
 product.banned_in_states.push(state) unless product.banned_in_states.include?(state)
+
+# Adds the minimum age to 21 of the first product on the first state
+ProductStateMinimumAge.create(product: product, state: state, age: 21) if ProductStateMinimumAge.where(state: state, product: product).blank?
